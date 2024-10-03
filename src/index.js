@@ -4,7 +4,6 @@ import potrace from 'potrace';
 import { readdirSync, existsSync, mkdirSync, renameSync, writeFileSync } from 'fs';
 import { join, basename, extname } from 'path'
 import parseArgs from 'args-parser'
-import { createCanvas, loadImage } from 'canvas'
 import opentype from 'opentype.js'
 
 const sleep = timeout => new Promise((resolve) => setTimeout(resolve, timeout));
@@ -178,8 +177,6 @@ const processDirectory = async (dirPath, options = {}) => {
     let pdfs = contents.filter(f => extname(f) == '.pdf')
     let letters = pdfs.map(f => basename(f).replace(extname(f), ''))
     if (!existsSync(dirPath, '/pngs/')) mkdirSync(join(dirPath, '/pngs'))
-    let canvas = createCanvas(512, 512)
-    let ctx = canvas.getContext('2d')
     for (let i = 0; i < pdfs.length; i++) {
         let letter = letters[i]
         let pdfFileName = pdfs[i]
@@ -189,20 +186,11 @@ const processDirectory = async (dirPath, options = {}) => {
         
         await poppler.pdfToCairo(pdfPath, imagePath, {
         
-            // jpegFile: true,
-            // jpegOptions: 'quality=100,progressive=y,optimize=y',
-            // scalePageTo: 300,
-            // singleFile: true
             pngFile: true
-
-            // jpegFile: true,
         })
         await sleep(200)
         renameSync(join(dirPath, '/pngs', letter + '.png-1.png'), imagePath)
 
-        let png = await loadImage(imagePath)
-        // ctx.drawImage(png, 0, 0)
-        // let imageData = ctx.getImageData(0, 0, 512, 512)
         let svg = await traceImage(imagePath)
         console.log(svg)
         let pathString = svg?.match?.(/<path d="(?<pathString>.+?)"/)?.groups?.pathString
