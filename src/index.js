@@ -292,8 +292,16 @@ const start = () => {
         return 
     }
     console.log(programArgs)
-    let dirPath = join(cwd, programArgs.dir)
-    console.log(dirPath)
+    let dirPath
+    if (programArgs.dir) {
+        if (programArgs.dir?.match?.(/^\.\//i)) {
+            dirPath = join(cwd, programArgs.dir)
+        } else {
+            dirPath = programArgs.dir
+        }
+    } else {
+        dirPath = cwd
+    }
     // Define the font metadata
     let fontName = "CustomFont";
     let fontFamily = "CustomFontFamily";
